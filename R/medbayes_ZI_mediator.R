@@ -172,27 +172,18 @@ medbayes_zim <- function(model.m = model.m, model.y = model.y,
     if(y_link == "logit") {
       res.rd = cal.rd.effects.ind(outcome.pred)
       res.rr = cal.rr.effects.ind(outcome.pred)
-      rst <- list(effects.rd = res.rd, effects.rr = res.rr, outcome.linpred=outcome.linpred, outcome.pred = outcome.pred)
+      rst <- list(effects.rd = res.rd, effects.rr = res.rr, outcome.pred = outcome.pred)
 
-    } else if(zi.outcome){
-
-      res.mu.zi = cal.rr.effects.y(outcome.pred.mu, outcome.pred.zi)
-      res.rr <- list(effects.mu.rr = res.mu.zi)
-
-      res.mu.zi = cal.rd.effects.y(outcome.pred.mu, outcome.pred.zi)
-      res.rd <- list(effects.mu.rd = res.mu.zi)
-      rst <- list(effects.rd = res.rd, effects.rr = res.rr, outcome.linpred.mu=outcome.linpred.mu, outcome.linpred.zi=outcome.linpred.zi)
-
-    }else{
+    } else{
       res = cal.rd.effects.ind(outcome.pred)
-      rst <- list(effects = res, outcome.linpred=outcome.linpred, outcome.pred = outcome.pred)
+      rst <- list(effects = res, outcome.pred = outcome.pred)
     }
   } else {
 
     if(y_link == "logit") {
       res.rd = cal.rd.effects(outcome.pred)
       res.rr = cal.rr.effects(outcome.pred)
-      rst <- list(effects.rd = res.rd, effects.rr = res.rr, outcome.linpred=outcome.linpred, outcome.pred = outcome.pred)
+      rst <- list(effects.rd = res.rd, effects.rr = res.rr, outcome.linpred=outcome.linpred.mu, outcome.pred = outcome.pred)
     } else if(zi.outcome){
 
       res.rr  = cal.rr.effects.y(outcome.pred.mu, outcome.pred.zi)
@@ -205,7 +196,7 @@ medbayes_zim <- function(model.m = model.m, model.y = model.y,
 
     } else{
       res = cal.rd.effects(outcome.pred)
-      rst <- list(effects = res, outcome.linpred=outcome.linpred, outcome.pred = outcome.pred)
+      rst <- list(effects = res, outcome.linpred=outcome.linpred.mu, outcome.pred = outcome.pred)
     }
   }
   rst
@@ -275,11 +266,11 @@ cal.rd.effects.ind  <- function(outcome.pred)
                     "Direct_control", "Direct_treated",
                     "Total Effect", "Indirect", "Direct", "Prop.Med")
   colnames(res) = c("Mean", "Median", "SD", "l-95% CI", "u-95% CI", "Bayes_p")
-  if(is.null(ind_mediator)){
-    res = res[-c("Indirect_Indicator")]
-  }else{
+  # if(is.null(ind_mediator)){
+  #   res = res[-c("Indirect_Indicator")]
+  # }else{
     res = res
-  }
+  # }
   res
 }
 cal.rr.effects.ind <- function(outcome.pred)
@@ -349,11 +340,11 @@ cal.rr.effects.ind <- function(outcome.pred)
                     "Direct_control", "Direct_treated",
                     "Total Effect", "Indirect", "Direct", "Prop.Med")
   colnames(res) = c("Mean", "Median", "SD", "l-95% CI", "u-95% CI", "Bayes_p")
-  if(is.null(ind_mediator)){
-    res = res[-c("Indirect_Indicator")]
-  }else{
+  # if(is.null(ind_mediator)){
+  #   res = res[-c("Indirect_Indicator")]
+  # }else{
     res = res
-  }
+  # }
   res
 }
 
