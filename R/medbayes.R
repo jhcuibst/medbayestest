@@ -21,12 +21,12 @@ medbayes <- function(model.m = model.m,
   zi.outcome = grepl("zero", family(model.y)$family) | grepl("hurdle", family(model.y)$family)
 
   if(zi.outcome){
-    result <- medbayes_zim(model.m=model.m, model.y=model.y, treat=treat,
+    result <- medbayes_ziy(model.m=model.m, model.y=model.y, treat=treat,
                            mediator = mediator, ind_mediator = ind_mediator,
                            outcome = outcome,
                            control.value = control.value, treat.value = treat.value)
   }else{
-    result <- medbayes_ziy(model.m=model.m, model.y=model.y, treat=treat,
+    result <- medbayes_zim(model.m=model.m, model.y=model.y, treat=treat,
                            mediator = mediator, ind_mediator = ind_mediator,
                            outcome = outcome,
                            control.value = control.value, treat.value = treat.value)
