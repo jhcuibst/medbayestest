@@ -199,7 +199,24 @@ medbayes_zim <- function(model.m = model.m, model.y = model.y,
       rst <- list(effects = res, outcome.linpred=outcome.linpred.mu, outcome.pred = outcome.pred)
     }
   }
-  rst
+  # rst
+
+  param.terms <- list(
+    call = match.call(),
+    model.m=model.m,
+    model.y=model.y,
+    treat=treat,
+    mediator = mediator,
+    ind_mediator = ind_mediator,
+    outcome = outcome,
+    control.value = control.value,
+    treat.value = treat.value
+    # params = list(...),   # if you want to capture extra arguments
+    # estimates = compute_effects(model_m, model_y)
+  )
+  class(param.terms) <- "params"
+
+  return(list(Results = rst, params = param.terms))
 }
 
 cal.rd.effects.ind  <- function(outcome.pred)

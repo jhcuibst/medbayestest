@@ -282,7 +282,23 @@ cal.rr.effects.y <- function(outcome.pred = outcome.pred.mu, outcome.pred.zi = o
   rownames(res) = c("NDE_NZ.C",	"NDE_NZ.T",	"NDE_Z.C",	"NDE_Z.T", "NIE_NZ.C",	"NIE_NZ.T",	"NIE_Z.C",	"NIE_Z.T",
                     "NDE.C",	"NDE.T",	"NIE.C",	"NIE.T",
                     "NDE.AVG",	"NIE_NZ.AVG",	"NIE_Z.AVG", "TOTAL",	"TOTAL_AVG", "PMed")
-  res
+  # res
+  param.terms <- list(
+    call = match.call(),
+    model.m=model.m,
+    model.y=model.y,
+    treat=treat,
+    mediator = mediator,
+    ind_mediator = ind_mediator,
+    outcome = outcome,
+    control.value = control.value,
+    treat.value = treat.value
+    # params = list(...),   # if you want to capture extra arguments
+    # estimates = compute_effects(model_m, model_y)
+  )
+  class(param.terms) <- "mediation_result"
+
+  return(list(Results = rst, params = param.terms))
 }
 cal.rd.effects.y <- function(outcome.pred = outcome.pred.mu, outcome.pred.zi = outcome.pred.zi)
 {
