@@ -2,7 +2,7 @@ Package: medbayestest
 Title: Bayesian Mediation Analysis Tools
 Version: 0.0.0.9000
 Authors@R: 
-    Jinhong Cui jinhong.cui@fccc.edu jhcui@uab.edu
+    person("Jinhong", "Cui", email = "jinhong.cui@fccc.edu", role = c("aut", "cre"))
 Description: Functions for Bayesian mediation analysis.
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
