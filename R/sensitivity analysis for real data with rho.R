@@ -59,9 +59,6 @@ run_sensitivity <- function(model.m = model.m, model.y = model.y,
                             treat = treat, mediator = mediator, ind_mediator = ind_mediator, outcome = outcome,
                             control.value = control.value, treat.value = treat.value,
                             rho01 = 0, rho0Y = 0, rho = 0){
-#
-#   if (!inherits(object$params, "params") )
-#     stop("Input must be a 'mediation_result' object from mediation_analysis().")
 
     value = c(control.value, treat.value)
     datm <- model.m$data
@@ -109,7 +106,7 @@ run_sensitivity <- function(model.m = model.m, model.y = model.y,
         dat.new[, treat] = value[i]
         predict.ind_ms[i,,] = 0
         # --------------------------------------------------------------------------------------------------#
-        predict.ind_ms[i,,] = plogis(1- posterior_linpred(model.m, newdata = dat.new, dpar = dpar.m[2]) + E0)
+        predict.ind_ms[i,,] = 1-plogis(posterior_linpred(model.m, newdata = dat.new, dpar = dpar.m[2]) + E0)
       }
     }else{
       predict.ind_ms <- array(0, dim = c(2, ndraws(model.m), 1))
