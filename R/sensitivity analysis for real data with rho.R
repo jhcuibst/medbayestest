@@ -3,13 +3,12 @@
 
 library(medbayestest)
 
-medbayes_sens <- function(object, rho = 0.3, rho01 = 0, rho0Y = 0, ...){
+medbayes_sens <- function(object, rho = seq(-0.3, 0.3, length = 5), rho01 = 0, rho0Y = 0, term, ...){
 
   if (!inherits(object$params, "params") )
     stop("Input must be a 'mediation_result' object from mediation_analysis().")
   if (!requireNamespace("MASS", quietly = TRUE))
     stop("This function requires R package MASS. Please make sure it's loaded.")
-
 
 
   # Reuse existing components
@@ -22,7 +21,7 @@ medbayes_sens <- function(object, rho = 0.3, rho01 = 0, rho0Y = 0, ...){
   control.value <- object$params$control.value
   treat.value <- object$params$treat.value
 
-  sens.out <- matrix(nrow = length(rho), ncol = 3, 3)
+  sens.out <- matrix(NA, nrow = length(rho), ncol = 3)
 
   for(i in (1:length(rho))){
     rho_i = rho[i]
@@ -33,13 +32,26 @@ medbayes_sens <- function(object, rho = 0.3, rho01 = 0, rho0Y = 0, ...){
                                treat = treat, mediator = mediator, ind_mediator = ind_mediator, outcome = outcome,
                                control.value = control.value, treat.value = treat.value,
                                rho01 = rho01, rho0Y = rho0Y, rho = rho_i )
-    val <- results$effects.rr[term,1]
-    p <- results$effects.rr[term,2]
-    sens.out[i,1] <- rho_i
-    sens.out[i,2] <- val
-    sens.out[i,3] = p
+
+    link = family(model.y)$link
+
+    if(link == "identity"){
+      val <- results$effects.rd[term,1]
+      p <- results$effects.rd[term,2]
+      sens.out[i,1] <- rho_i
+      sens.out[i,2] <- val
+      sens.out[i,3] <- p
+    }else if(link == "logit"){
+      val <- results$effects.rr[term,1]
+      p <- results$effects.rr[term,2]
+      sens.out[i,1] <- rho_i
+      sens.out[i,2] <- val
+      sens.out[i,3] <- p
+    }
+
   }
   sens.out <- data.frame(sens.out)
+  colnames(sens.out) <-  c("Rho", term, "p_value")
   return(sens.out)
 }
 
@@ -231,14 +243,15 @@ run_sensitivity <- function(model.m = model.m, model.y = model.y,
     if(y_link == "identity" & !(zi.outcome))  outcome.pred = outcome.linpred.mu
     if(y_link == "logit"& !(zi.outcome))      outcome.pred  = exp(outcome.linpred.mu)/(1+exp(outcome.linpred.mu))
 
-      if(y_link == "logit") {
+    if(y_link == "logit") {
         res.rd = cal.sens.rd(outcome.pred)
         res.rr = cal.sens.rr(outcome.pred)
-        rst <- list(res.rd, res.rr)
+        rst <- list(effects.rd = res.rd, effects.rr = res.rr)
       }else{
         res.rd = cal.sens.rd(outcome.pred)
+        st <- list(effects.rd = res.rd)
       }
-    rst <- list(effects.rd = res.rd, effects.rr = res.rr)
+
 }
 
 cal.sens.rr <- function(outcome.pred)
@@ -280,6 +293,7 @@ cal.sens.rr <- function(outcome.pred)
 
 cal.sens.rd <- function(outcome.pred)
 {
+
   indirect_control = outcome.pred[1,2,2,,] - outcome.pred[1,1,2,,]
   indirect_treated = outcome.pred[2,2,2,,] - outcome.pred[2,1,2,,]
 
@@ -294,19 +308,19 @@ cal.sens.rd <- function(outcome.pred)
   res = rbind(
     c(mean(indirect_control), median(indirect_control), sd(indirect_control),
       quantile(indirect_control, probs=c(0.025,0.975), na.rm = T),
-      2*min(mean(indirect_control<1), mean(indirect_control>1))),
+      2*min(mean(indirect_control<0), mean(indirect_control>0))),
 
     c(mean(indirect_treated), median(indirect_treated), sd(indirect_treated),
       quantile(indirect_treated, probs=c(0.025,0.975), na.rm = T),
-      2*min(mean(indirect_treated<1), mean(indirect_treated>1))),
+      2*min(mean(indirect_treated<0), mean(indirect_treated>0))),
 
     # *******************************************************
     c(mean(indirect_Im), median(indirect_Im), sd(indirect_Im),
       quantile(indirect_Im, probs=c(0.025,0.975), na.rm = T),
-      2*min(mean(indirect_Im<1), mean(indirect_Im>1)))
+      2*min(mean(indirect_Im<0), mean(indirect_Im>0)))
     # *******************************************************
   ) # Bayes p-value: tail probability (see JMbayes), 2*min{pr(b<0), pr(b>0))}
-  res[,1:5] = round(res[,1:5], digits=3)
+  res[,1:5] = round(res[,1:5], digits=5)
   res[,6] = signif(res[,6], digits=4)
 
   rownames(res) = c("Indirect_control", "Indirect_treated", "Indirect_Indicator")

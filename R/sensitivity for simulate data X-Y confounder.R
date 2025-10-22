@@ -22,28 +22,45 @@ medbayes_sens <- function(object, rho = 0.3, rho01 = 0, rho0Y = 0, ...){
   treat.value <- object$params$treat.value
 
   X = model.m$data[,treat]
-  # X is the observed exposure (numeric, any distribution)
+
+  # Simulate C given pre-defined \rho ----
+  muC = 2; sdC = 1
+
+  ## For normal distributed X ----
+  ### X is the observed exposure (numeric, any distribution)
   x_std  <- scale(X, center = TRUE, scale = TRUE)[,1]
   rho    <- 0.5                       # your sensitivity value
   n      <- length(x_std)
-
-  # simulate C so that Corr(X, C) = rho
+  ## simulate C so that Corr(X, C) = rho
   C_std  <- rho * x_std + sqrt(1 - rho^2) * rnorm(n)
-
-  # give C any marginal you want (here mean 0, sd 1); or set mean/sd explicitly:
-  C <- C_std                           # or: C <- muC + sdC * C_std
-
-
-
-
+  ### generate continuous C----
+  C <- muC + sdC * C_std
+  ### generate Binary C----
+  pC = 0.3
+  C <- as.numeric(C_std > qnorm(1-pC))
 
 
+  ## For binary X----
+  p     <- mean(X)                      # P(X=1)
+  v     <- p*(1-p)
+  x_std <- (X - p)/sqrt(v)
+  C_std <- rho * x_std + sqrt(1 - rho^2) * rnorm(length(X))
+  ### generate continuous C----
+  C     <- muC + sdC * C_std
+  ### generate binary C----
+  pC = 0.3
+  C <- as.numeric(C_std > qnorm(1 - pC))
 
 
-
-
-
-
+  ## For Non-normal continuous X----
+  uX <- (rank(X, ties.method = "average") - 0.5) / length(X)
+  zX <- qnorm(uX)
+  Cz <- rho * zX + sqrt(1 - rho^2) * rnorm(length(X))
+  ### generate continuous C----
+  C  <- muC + sdC * Cz
+  ### generate Binary C----
+  pC = 0.3
+  C <- as.numeric(Cz > qnorm(1-pC))
 
 
 

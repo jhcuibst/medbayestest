@@ -35,6 +35,10 @@ dat.sim <- function(
     px = c(0.5, 0.5)                       # binary exposure with p=0.5 by default
     x.d <- c(rep(0, n/2), rep(1, n/2))     # generate a binary exposure with p=0.5 by default
   }
+  if (missing(px) & !missing(x.d)) {
+    warning("Note: a bianry distribution and p=0.5 will be used by default")
+    px = mean(x.d)
+  }
   if (!missing(px) & missing(x.d)){
     x.d <- list()
     for (i in 1:length(px)){
